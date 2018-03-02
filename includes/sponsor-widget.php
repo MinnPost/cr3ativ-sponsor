@@ -9,7 +9,7 @@ class cr3ativ_sponsor extends WP_Widget {
 
 	// widget form creation
 	function form($instance) { 
-// Check values
+ 
  if( $instance) { 
      $title = esc_attr($instance['title']); 
      $sponsorlogo = esc_attr($instance['sponsorlogo']);
@@ -17,6 +17,7 @@ class cr3ativ_sponsor extends WP_Widget {
      $sponsorlink = esc_attr($instance['sponsorlink']);
      $sponsorbio = esc_attr($instance['sponsorbio']);
      $orderby = esc_attr($instance['orderby']); 
+     $order = esc_attr($instance['order']); 
      $itemstodisplay = esc_attr($instance['itemstodisplay']); 
      $cr3ativsponsor_level = esc_attr($instance['cr3ativsponsor_level']);
 } else { 
@@ -26,6 +27,7 @@ class cr3ativ_sponsor extends WP_Widget {
      $sponsorlink = '';
      $sponsorbio = '';
      $orderby = '';
+     $order = '';
      $itemstodisplay = ''; 
      $cr3ativsponsor_level = '';
 } 
@@ -35,13 +37,20 @@ class cr3ativ_sponsor extends WP_Widget {
 <input id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" style="float:right; width:56%;" />
 </p>
 <p>
-<label for="<?php echo $this->get_field_id('orderby'); ?>"><?php _e('Sorting Method', 'cr3at_sponsor'); ?></label>
+<label for="<?php echo $this->get_field_id('orderby'); ?>"><?php _e('Order by', 'cr3at_sponsor'); ?></label>
 <select id="<?php echo $this->get_field_id('orderby'); ?>" name="<?php echo $this->get_field_name('orderby'); ?>"  style="float:right; width:56%;">
     <option selected="selected" value="none"><?php _e( 'Select One', 'cr3at_sponsor' ); ?></option>
-    <option <?php if ( $orderby == 'asc' ) { echo ' selected="selected"'; } ?> value="asc"><?php _e('Asc', 'cr3at_sponsor'); ?></option>
-    <option <?php if ( $orderby == 'desc' ) { echo ' selected="selected"'; } ?> value="desc"><?php _e('Desc', 'cr3at_sponsor'); ?></option>
+    <option <?php if ( $orderby == 'title' ) { echo ' selected="selected"'; } ?> value="title"><?php _e('Title', 'cr3at_sponsor'); ?></option>
+    <option <?php if ( $orderby == 'date' ) { echo ' selected="selected"'; } ?> value="date"><?php _e('Date', 'cr3at_sponsor'); ?></option>
     <option <?php if ( $orderby == 'rand' ) { echo ' selected="selected"'; } ?> value="rand"><?php _e('Random', 'cr3at_sponsor'); ?></option>
-    <option <?php if ( $orderby == 'menu_order' ) { echo ' selected="selected"'; } ?> value="menu_order"><?php _e('Page Attributes "Order"', 'cr3at_sponsor'); ?></option>
+</select>
+</p>
+<p>
+<label for="<?php echo $this->get_field_id('order'); ?>"><?php _e('Sorting Method', 'cr3at_sponsor'); ?></label>
+<select id="<?php echo $this->get_field_id('order'); ?>" name="<?php echo $this->get_field_name('order'); ?>"  style="float:right; width:56%;">
+    <option selected="selected" value="none"><?php _e( 'Select One', 'cr3at_sponsor' ); ?></option>
+    <option <?php if ( $order == 'asc' ) { echo ' selected="selected"'; } ?> value="asc"><?php _e('ASC', 'cr3at_sponsor'); ?></option>
+    <option <?php if ( $order == 'desc' ) { echo ' selected="selected"'; } ?> value="desc"><?php _e('DESC', 'cr3at_sponsor'); ?></option>
 </select>
 </p>
 <p>
@@ -83,11 +92,12 @@ class cr3ativ_sponsor extends WP_Widget {
       $instance = $old_instance;
       // Fields
       $instance['title'] = strip_tags($new_instance['title']);
-      $instance['orderby'] = strip_tags($new_instance['orderby']);
-      $instance['sponsorlogo'] = strip_tags($new_instance['sponsorlogo']);
-      $instance['sponsorname'] = strip_tags($new_instance['sponsorname']);
-      $instance['sponsorlink'] = strip_tags($new_instance['sponsorlink']);
-      $instance['sponsorbio'] = strip_tags($new_instance['sponsorbio']);
+      $instance['orderby'] = $new_instance['orderby'];
+      $instance['order'] = $new_instance['order'];
+      $instance['sponsorlogo'] = $new_instance['sponsorlogo'];
+      $instance['sponsorname'] = $new_instance['sponsorname'];
+      $instance['sponsorlink'] = $new_instance['sponsorlink'];
+      $instance['sponsorbio'] = $new_instance['sponsorbio'];
       $instance['itemstodisplay'] = $new_instance['itemstodisplay'];
       $instance['cr3ativsponsor_level'] = strip_tags($new_instance['cr3ativsponsor_level']);
      return $instance;
@@ -105,17 +115,20 @@ class cr3ativ_sponsor extends WP_Widget {
    $itemstodisplay = $instance['itemstodisplay'];
    $cr3ativsponsor_level = $instance['cr3ativsponsor_level'];
    $orderby = $instance['orderby'];
+   $order = $instance['order'];
    echo $before_widget;
       
 global $post; 
         
-    if( $cr3ativsponsor_level == ('none') ) { $cr3ativsponsor_level = 'all';} else { };
-    if( $orderby == ('none') ) { $orderby = 'rand';} else { };
+    if( $cr3ativsponsor_level == ('none') ) { $cr3ativsponsor_level = 'all';}
+    if( $orderby == ('none') ) { $orderby = 'rand';}
+    if($order == ('none')) {$order = '';}
+    if( $sponsorbio == ('null') ) { $sponsorbio = '';}
     if( $cr3ativsponsor_level != ('all') ) {      
 		$args = array(
 		'post_type' => 'cr3ativsponsor',
         'posts_per_page' => $itemstodisplay,
-        'order' => $orderby,
+        'order' => $order,
         'orderby' => $orderby,
         'tax_query' => array(
             array(
@@ -127,7 +140,7 @@ global $post;
    } else {
 		$args = array(
 		'post_type' => 'cr3ativsponsor',
-        'order' => $orderby,
+        'order' => $order,
         'orderby' => $orderby,
         'posts_per_page' => $itemstodisplay
 		);
@@ -144,11 +157,9 @@ global $post;
 ?> 
 		<?php 
    		if (have_posts($args)) : while (have_posts()) : the_post(); 
-
         $temp_title = get_the_title($post->ID);
         $temp_sponsorurl = get_post_meta($post->ID, 'cr3ativ_sponsorurl', $single = true);
         $temp_excerpt = get_the_content($post->ID);
-        
         ?>
     
      <div class="cr3_sponsorwidget">
